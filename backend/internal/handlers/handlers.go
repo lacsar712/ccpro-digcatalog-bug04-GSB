@@ -419,14 +419,14 @@ func (h *Handler) Overview(c *gin.Context) {
 	h.DB.Model(&models.Find{}).Count(&findCount)
 
 	type typeStat struct {
-		ArtifactType string `json:"artifactType"`
-		Count        int64  `json:"count"`
+		TypeName string `json:"typeName"`
+		Count    int64  `json:"count"`
 	}
 	var byType []typeStat
 	h.DB.Model(&models.Find{}).
-		Joins("JOIN units ON units.deleted_at IS NULL").
-		Select("finds.artifact_type as type_name, count(*) as count").
-		Group("finds.artifact_type").
+		Select("artifact_type AS type_name, COUNT(*) AS count").
+		Group("artifact_type").
+		Order("count DESC").
 		Scan(&byType)
 
 	c.JSON(http.StatusOK, gin.H{
